@@ -1,24 +1,45 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <meta name="description" content="">
+	    <meta name="author" content="">
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	    <link href='http://fonts.googleapis.com/css?family=Permanent+Marker' rel='stylesheet' type='text/css'>
+	    <link href='http://fonts.googleapis.com/css?family=Creepster' rel='stylesheet' type='text/css'>
+
 		<title>Simon Game</title>
 		<style type="text/css">
 			body {
-				/*background: url("/img/bg.jpg");
+				background: url("/img/game_bg.png");
 				background-size: 100%;
-    			background-repeat: no-repeat;*/
+    			background-repeat: no-repeat;
 			}
 			#container {
 				width: 400px;
 				height: 400px;
-				margin-left: auto;
-				margin-right: auto;
-				margin-left: auto;
-				margin-top: 150px;
-				border: 
+				left: 100px;
+				position: absolute;
+				/*z-index: -1;*/
 			}
-			#red: hover {
-				border: 2px solid black;
+			
+			#red:active { 
+    			background-color: red;
+    			border-top-left-radius: 50%;
+			}
+			#blue:active { 
+    			background-color: blue;
+    			border-top-right-radius: 50%;
+			}
+			#green:active { 
+    			background-color: rgb(144,193,64);
+    			border-bottom-left-radius: 50%;
+			}
+			#yellow:active { 
+    			background-color: yellow;
+    			border-bottom-right-radius: 50%;
 			}
 			#red {
 				width: 200px;
@@ -26,6 +47,7 @@
 				background: rgb(176,0,35);
 				float: left;
 				border-top-left-radius: 100%;
+
 
 			}
 			#blue {
@@ -39,40 +61,148 @@
 			#green {
 				width: 200px;
 				height: 200px;
-				background: rgb(100,144,44);
+				background: green;
 				float: left;
 				border-bottom-left-radius: 100%;
 			}
 			#yellow {
 				width: 200px;
 				height: 200px;
-				background: rgb(246,203,118);
+				background: yellow;
 				float: left;
 				border-bottom-right-radius: 100%;
 			}
+			h1 {
+				color: white;
+				text-align: center;
+				font-size: 60px;
+				font-family: 'Permanent Marker', cursive;
 
+			}
+			#you-survived{
+				display: none;
+				position: absolute;
+				margin-top: 130px; 
+				background-color: black;
+				color: white;
+				font-size: 50px;
+				font-weight: bolder;
+				width: 500px;
+				left: 50px;
+				text-align: center;
+				z-index: 1;
+			}
+
+			#game-over{
+				display: none;
+				position: absolute;
+				margin-top: 120px;
+				width: 500px;
+				left: 50px;
+				text-align: center;
+				color: white;
+				font-size: 120px;
+				font-weight: bolder;
+				z-index: 1;
+				font-family: 'Creepster', cursive;			
+			}
+			#header {
+				width: 600px;
+				height: 650px;
+				margin-left: auto;
+    			margin-right: auto;
+    			position: relative;
+			}
 		</style>
 	</head>
 	<body>
-		<div id="container">
-			<div id="red"></div>
-			<div id="blue"></div>
-			<div id="green"></div>
-			<div id="yellow"></div>
-			
+		<button id=	"start_game">Start the Game</button>
+		<div id="header" class= "center">
+			<div class= "center"><h1>SIMON GAME</h1></div>
+			<div id= "game-over" class= "center">GAME OVER</div>
+			<div id= "you-survived" class= "center">You've Survived..<br><span style= "font-size: 40px">for now! Bahahaha!</span></div>
+
+			<div id="container">
+				<div id="red" data-value="0" class="square red-sq"></div>
+				<div id="blue" data-value="1" class="square blue-sq"></div>
+				<div id="green" data-value="2" class="square green-sq"></div>
+				<div id="yellow" data-value="3" class="square yellow-sq"></div>
+				
+			</div>
+
 		</div>
+		
 		<script type="text/javascript">
-			
+			var colorsGenerated = [];
+			var mouseDown = [];
+
+			var squares = document.getElementsByClassName('square');
+
 			var red = document.getElementById('red');
 			var blue = document.getElementById('blue');
 			var green = document.getElementById('green');
 			var yellow = document.getElementById('yellow');
-
-			//function "random"
-			//function to change color
-			//
 			
+			
+//generate random number and push (add) it to the computer array, then go animate the array.
+			function random(){
+				document.getElementById('game-over').style.display = "none";
+				document.getElementById('you-survived').style.display = "none";
+				var i = Math.floor((Math.random()*4));
+			    colorsGenerated.push(i);
+			    console.log(colorsGenerated);
+			    animateGenerated();
+			}
 
+//animates the computer array one element at a time over a repeated time interval
+			function animateGenerated(){
+					var k = 0;
+					var interval = setInterval(function(){
+						var b = colorsGenerated[k];
+						squares[b].style['opacity'] = '0.4';
+						k++;
+					    setTimeout(function(){
+					    	squares[b].style['opacity'] = "1";
+					    }, 1000);
+					    if(k >= colorsGenerated.length){
+					    	clearInterval(interval);
+					    }
+					}, 2000);
+			}			
+		
+
+			function userClick(event){
+				var userButtonPushed = this.attributes['data-value'].value;
+				mouseDown.push(userButtonPushed);
+				console.log(mouseDown);
+				checkAnswers();
+			}
+		
+			function checkAnswers(){
+				for(var c = 0; c < mouseDown.length ; c++){
+					if (colorsGenerated[c] != mouseDown[c]){
+						colorsGenerated = [];
+						mouseDown = [];
+
+						document.getElementById('game-over').style.display = "inline-block";
+						
+						
+					}
+				}  
+				if (colorsGenerated.length == mouseDown.length){
+				 	document.getElementById('you-survived').style.display = "inline-block";
+					random();
+				}
+			}
+
+
+			document.getElementById('start_game').addEventListener('click', random, false);
+			squares[0].addEventListener('click', userClick, false);
+			squares[1].addEventListener('click', userClick, false);
+			squares[2].addEventListener('click', userClick, false);
+			squares[3].addEventListener('click', userClick, false);
+			
+			
 		</script>
 	</body>
 </html>
